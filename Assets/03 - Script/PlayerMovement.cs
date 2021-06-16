@@ -9,34 +9,53 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Attributes")]
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask stairsLayer;
     [SerializeField] private Transform footPosition;
     [SerializeField] private Animator animator;
     [SerializeField] private Rigidbody2D rb;
     private float direction = 0;
     private bool ground;
-    private bool falling;
+    private int action;
+    public bool ladder;
     private void FixedUpdate() {
-        ground = Ground();
-
         if(Input.GetMouseButton(0)){
-            Walk(); 
+            action = 1;
         }else{
-            animator.SetFloat("speed", 0);
+            action = 0;
         }
-
+        if(action == 1){
+            StandartAction();           
+        }
+        ground = Ground();
+        Animations();
+    }
+    private void StandartAction(){
+        if(ladder){
+            rb.transform.position += new Vector3(0,action,0) * Time.deltaTime * moveSpeed /2;
+        }else{
+            transform.position += new Vector3(action,0,0) * Time.deltaTime * moveSpeed;
+        }
+    }   
+    private void Animations(){
+        ladderAnimation();
+        animator.SetBool("stairs", ladder);
+        animator.SetFloat("speed", action);
         animator.SetBool("ground", ground);
         animator.SetFloat("jump", rb.velocity.y);
     }
-
-    private void OnCollisionEnter2D(Collision2D other) {
-        falling = false;
+    private void ladderAnimation(){
+        if(ladder && action == 1){
+            animator.speed = 1;
+        }
+        else if(ladder && action == 0){
+            animator.speed = 0;
+        }
     }
-    private void Walk(){
-        transform.position += new Vector3(1,0,0) * Time.deltaTime * moveSpeed;
-        animator.SetFloat("speed", 1);
-    }
-
     public bool Ground(){
-        return Physics2D.OverlapCircle(footPosition.position, 0.1f, groundLayer);
+        return Physics2D.OverlapCircle(footPosition.position, 0.05f, groundLayer);
+    }
+    private void OnDrawGizmos() {
+        Gizmos.DrawWireSphere(footPosition.position, 0.05f);
+        Gizmos.DrawWireSphere(transform.position, 0.12f);
     }
 }
