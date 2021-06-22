@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed;
 
     [Header("Attributes")]
+    [SerializeField] private PowerUps powerUps;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask stairsLayer;
     [SerializeField] private Transform footPosition;
@@ -17,18 +18,28 @@ public class PlayerMovement : MonoBehaviour
     private bool ground;
     private int action;
     public bool ladder;
+    public bool executed;
+
     private void FixedUpdate() {
-        if(Input.GetMouseButton(0)){
-            action = 1;
-        }else{
-            action = 0;
-        }
-        if(action == 1){
-            StandartAction();           
-        }
+        ActionManager(Input.GetMouseButton(0) ? 1 : 0);
         ground = Ground();
         Animations();
     }
+
+    private void ActionManager(int currentAction){
+        if(action == 1){
+            StandartAction();           
+        }else if(action == 0 && rb.velocity.x <= 0.01 && Input.GetMouseButton(0) && !ground){
+            if(!ground && !executed && rb.velocity.y < 0.01){
+                executed = true;
+                powerUps.Execute();
+            }else if(ground){
+                executed = false;
+            }   
+        }
+        action = currentAction;
+    }
+
     private void StandartAction(){
         if(ladder){
             rb.transform.position += new Vector3(0,action,0) * Time.deltaTime * moveSpeed /2;
@@ -54,6 +65,11 @@ public class PlayerMovement : MonoBehaviour
     public bool Ground(){
         return Physics2D.OverlapCircle(footPosition.position, 0.05f, groundLayer);
     }
+
+    public void allowPowerUp(){
+        executed = false;
+    } 
+
     private void OnDrawGizmos() {
         Gizmos.DrawWireSphere(footPosition.position, 0.05f);
         Gizmos.DrawWireSphere(transform.position, 0.12f);

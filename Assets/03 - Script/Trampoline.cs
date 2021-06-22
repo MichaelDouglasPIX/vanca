@@ -11,6 +11,7 @@ public class Trampoline : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.tag == "Player"){
+            other.SendMessage("allowPowerUp");
             animator.SetTrigger("jump");
             Rigidbody2D rb = other.GetComponent<Rigidbody2D>();
             rb.velocity = rb.transform.up * jumpForce;
