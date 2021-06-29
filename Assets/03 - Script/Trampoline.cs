@@ -9,7 +9,7 @@ public class Trampoline : MonoBehaviour
     [Header("Attributes")]
     [SerializeField] private Animator animator;
     
-    private void OnTriggerEnter2D(Collider2D other) {
+    private void OnTriggerEnter2D(Collider2D other) {//Comportamento do Trampolin
         if(other.tag == "Player"){
             other.SendMessage("allowPowerUp");
             animator.SetTrigger("jump");

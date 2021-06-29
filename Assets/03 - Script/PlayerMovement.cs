@@ -10,15 +10,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Attributes")]
     [SerializeField] private PowerUps powerUps;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private LayerMask stairsLayer;
     [SerializeField] private Transform footPosition;
     [SerializeField] private Animator animator;
     [SerializeField] private Rigidbody2D rb;
-    private float direction = 0;
-    private bool ground;
+    public bool ground;
     private int action;
     public bool ladder;
-    public bool executed;
 
     private void FixedUpdate() {
         ActionManager(Input.GetMouseButton(0) ? 1 : 0);
@@ -30,12 +27,11 @@ public class PlayerMovement : MonoBehaviour
         if(action == 1){
             StandartAction();           
         }else if(action == 0 && rb.velocity.x <= 0.01 && Input.GetMouseButton(0) && !ground){
-            if(!ground && !executed && rb.velocity.y < 0.01){
-                executed = true;
+            if(!ground && rb.velocity.y < 0.01){
                 powerUps.Execute();
-            }else if(ground){
-                executed = false;
-            }   
+            } 
+        }else if(action == 0 && ground){
+            powerUps.Reset();
         }
         action = currentAction;
     }
@@ -67,8 +63,8 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public void allowPowerUp(){
-        executed = false;
-    } 
+        powerUps.Reset();
+    }
 
     private void OnDrawGizmos() {
         Gizmos.DrawWireSphere(footPosition.position, 0.05f);
